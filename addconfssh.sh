@@ -3,6 +3,10 @@ conf="$HOME/.ssh/config"
 swp="$HOME/.ssh/.swp"
 path=$HOME/.sshconfgen
 man="$path/man.txt"
+keys=$path/keys
+RED='\033[0;31m'        
+GREEN='\033[0;32m'
+NORMAL='\033[0m'
 function setting {
 	echo -n "Enter IP address: "
 	read Host
@@ -56,13 +60,43 @@ function check {
 		esac
 	done
 }
+function addconf_options {
+read -e -p "Enter hostname: " HostName
+echo "Host $HostName 
+  HostName $1
+  User $2
+  IdentityFile $3" > $swp	
+}
+function create-keys {
+	read -e -p "Enter filename: " Rsa
+	read -e -p "Enter ip address: " ip_addr
+	read -e -p "Enter username: " username
+	ssh-keygen -f $keys/$Rsa
+	echo "${GREEN} Keys created"
+	while true; do
+		read -p "Are you want copy public key to host? [Y/n]" yn
+		case $yn in
+		[Yy]* ) ssh-copy-id -i $keys/$Rsa $username@$ip_addr;;
+		[Nn]* ) break;;
+		esac
+	done
+	while true; do
+		read -p "Are you want add host to ssh config? [y/N] " yn
+		case $yn in
+			[Yy]* ) addconf_options $ip_addr $username $keys/$Rsa; check;;
+			[Nn]* ) exit 0;;
+			* ) exit 0;;
+		esac
+	done
+}
 if [ -n "$1" ]
 then
 	while [ -n "$1" ]; do
 		case "$1" in
-			--help) cat $man; exit 0;;
-			--search) search; exit 0;;
-			--add) setting; addconf; check;;
+			--help|-h) cat $man; exit 0;;
+			--search|-s) echo "In development"; exit 0;;
+			--add|-a) setting; addconf; check;;
+			--create-keys|-c) create-keys;;
 			*) echo "illegal option $1"; cat $man; exit 2;;
 		esac
 		shift
