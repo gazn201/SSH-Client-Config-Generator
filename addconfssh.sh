@@ -89,6 +89,10 @@ function create-keys {
 		esac
 	done
 }
+function ciphers {
+	echo "   Ciphers aes128-ctr,aes192-ctr,aes256-ctr,aes128-cbc,3des-cbc" >> $swp
+	echo "   KexAlgorithms=+diffie-hellman-group1-sha1" >> $swp
+}
 function search {
 	if [ -z $1 ]
 	then
@@ -117,6 +121,7 @@ then
 			--help|-h) cat $man; exit 0;;
 			--search|-s) search $2 2> /dev/null; exit 0;;
 			--add|-a) setting; addconf; check;;
+			--add-ciphers|-C) setting; addconf; ciphers; check;;
 			--create-keys|-c) create-keys;;
 			--remove|-r) echo "In development";;
 			*) echo "illegal option $1"; cat $man; exit 2;;
