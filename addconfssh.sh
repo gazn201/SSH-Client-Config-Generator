@@ -72,7 +72,7 @@ function create-keys {
 	read -e -p "Enter ip address: " ip_addr
 	read -e -p "Enter username: " username
 	ssh-keygen -f $keys/$Rsa
-	echo "${GREEN} Keys created"
+	echo -e "${GREEN} Keys created"
 	while true; do
 		read -p "Are you want copy public key to host? [Y/n]" yn
 		case $yn in
@@ -95,13 +95,19 @@ function search {
 		echo -e "${RED}Hostname not specified!"
 		exit 3
 	else
-		address=$(grep $1 -a $conf -C1 |grep HostName |awk '{print $2}')
-		for addr in $address; do
-			hostname=$(grep $addr -a $conf -C1 | grep "Host " |awk '{print $2}')
-			echo -e "${GREEN} --------------------------------------- "
-			echo -e "${GREEN}| Hostname $hostname ;; IP address $addr |"
-			echo -e "${GREEN} --------------------------------------- "
-		done
+		result=$(grep $1 -a $conf -C1 |grep HostName |awk '{print $2}')
+		if [ -z $result ]
+		then
+			echo -e "${RED} Not found!"
+			exit 3
+		else
+			for addr in $result; do
+				hostname=$(grep $(echo "$addr ") -a $conf -C1 | grep "Host " |awk '{print $2}')
+				echo -e "${GREEN} --------------------------------------- "
+				echo -e "${GREEN}| Hostname $hostname ;; IP address $addr |"
+				echo -e "${GREEN} --------------------------------------- "
+			done
+		fi
 	fi
 }
 if [ -n "$1" ]
@@ -112,6 +118,7 @@ then
 			--search|-s) search $2; exit 0;;
 			--add|-a) setting; addconf; check;;
 			--create-keys|-c) create-keys;;
+			--remove|-r) echo "In development";;
 			*) echo "illegal option $1"; cat $man; exit 2;;
 		esac
 		shift
