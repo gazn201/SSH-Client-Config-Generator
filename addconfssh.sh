@@ -89,12 +89,27 @@ function create-keys {
 		esac
 	done
 }
+function search {
+	if [ -z $1 ]
+	then
+		echo -e "${RED}Hostname not specified!"
+		exit 3
+	else
+		address=$(grep $1 -a $conf -C1 |grep HostName |awk '{print $2}')
+		for addr in $address; do
+			hostname=$(grep $addr -a $conf -C1 | grep "Host " |awk '{print $2}')
+			echo -e "${GREEN} --------------------------------------- "
+			echo -e "${GREEN}| Hostname $hostname ;; IP address $addr |"
+			echo -e "${GREEN} --------------------------------------- "
+		done
+	fi
+}
 if [ -n "$1" ]
 then
 	while [ -n "$1" ]; do
 		case "$1" in
 			--help|-h) cat $man; exit 0;;
-			--search|-s) echo "In development"; exit 0;;
+			--search|-s) search $2; exit 0;;
 			--add|-a) setting; addconf; check;;
 			--create-keys|-c) create-keys;;
 			*) echo "illegal option $1"; cat $man; exit 2;;
