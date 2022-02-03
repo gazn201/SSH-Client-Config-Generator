@@ -52,7 +52,7 @@ done
 function check {
 	while true; do
 		cat $swp
-		read -p "Is the config correct? [y/N] " yn
+		read -p "It the config correct? [y/N] " yn
 		case $yn in
 			[Yy]* ) cat $swp >> $conf; rm -f $swp; exit 0;;
 			[Nn]* ) rm -f $swp; exit 1;;
