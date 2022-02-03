@@ -102,7 +102,7 @@ function search {
 			exit 3
 		else
 			for addr in $result; do
-				hostname=$(grep $(echo "$addr ") -a $conf -C1 | grep "Host " |awk '{print $2}')
+				hostname=$(grep $addr -a $conf -C1 | grep "Host " |awk '{print $2}')
 				echo -e "${GREEN} --------------------------------------- "
 				echo -e "${GREEN}| Hostname $hostname ;; IP address $addr |"
 				echo -e "${GREEN} --------------------------------------- "
@@ -115,7 +115,7 @@ then
 	while [ -n "$1" ]; do
 		case "$1" in
 			--help|-h) cat $man; exit 0;;
-			--search|-s) search $2; exit 0;;
+			--search|-s) search $2 2> /dev/null; exit 0;;
 			--add|-a) setting; addconf; check;;
 			--create-keys|-c) create-keys;;
 			--remove|-r) echo "In development";;
