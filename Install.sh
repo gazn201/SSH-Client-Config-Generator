@@ -1,10 +1,9 @@
-path=$HOME/.sshconfgen
-mkdir $path
-mkdir $path/keys
-cp addconfssh.sh $path
-cp man.txt $path
-cp identifier.sqlite $path
-chmod +x $path/addconfssh.sh
+DIR=$HOME/.sshconfgen
+mkdir $DIR
+mkdir $DIR/keys
+cp addconfssh.sh $DIR
+cp man.txt $DIR
+chmod +x $DIR/addconfssh.sh
 
 
 
