@@ -10,6 +10,7 @@ lastID=$(sqlite3 $DB "SELECT rowid from $TABLE order by ROWID DESC limit 1")
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
+NORMAL='\033[0m'
 
 function addConf {
   read -e -p "Enter hostname: " Hostname
@@ -19,7 +20,23 @@ function addConf {
     echo -e "${RED}Error: Hostname $Hostname alredy exist";
     exit 1
   fi
-  read -e -p "Enter IP addres: " Address
+  for (( i=0; i<3; i++ ))
+  do
+    read -p "Enter IP address: " ip_addr
+
+    read valid <<< $( awk -v ip="$ip_addr" '
+    BEGIN { n=split(ip, i,"."); e = 0;
+    if (6 < length(ip) && length(ip) < 16 && n == 4 && i[4] > 0 && i[1] > 0){
+    for(z in i){if (i[z] !~ /[0-9]{1,3}/ || i[z] > 255){e=1;break;}}
+    } else { e=1; } print(e);}')
+    if [ $valid == 0 ]; then
+    	Address=$ip_addr
+    	break
+    else
+      echo -e "${RED}Fail: IP Invalid"
+      echo -e "${NORMAL}"
+    fi
+  done
   read -e -p "Enter Username: " Username
   while true; do
   		read -p "Using default identity file? [Y/n] " yn
@@ -38,12 +55,13 @@ function addConf {
   		* ) Port=$defPort; break;;
   	esac
   done
-  echo -e "${GREEN}Hostname: $Hostname"
-  echo -e "${GREEN}IP Address: $Address"
-  echo -e "${GREEN}Username: $Username"
-  echo -e "${GREEN}Port: $Port"
-  echo -e "${GREEN}ID rsa file: $Rsa"
-  echo ""
+  echo -e "${GREEN}"
+  echo "Hostname: $Hostname"
+  echo "IP Address: $Address"
+  echo "Username: $Username"
+  echo "Port: $Port"
+  echo "ID rsa file: $Rsa"
+  echo -e "${NORMAL}"
   while true
   do
   	read -p "It the config correct? [y/N] " yn
