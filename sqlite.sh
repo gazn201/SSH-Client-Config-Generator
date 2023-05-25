@@ -20,23 +20,34 @@ function addConf {
     echo -e "${RED}Error: Hostname $Hostname alredy exist";
     exit 1
   fi
-  for (( i=0; i<3; i++ ))
-  do
-    read -p "Enter IP address: " ip_addr
-
-    read valid <<< $( awk -v ip="$ip_addr" '
-    BEGIN { n=split(ip, i,"."); e = 0;
-    if (6 < length(ip) && length(ip) < 16 && n == 4 && i[4] > 0 && i[1] > 0){
-    for(z in i){if (i[z] !~ /[0-9]{1,3}/ || i[z] > 255){e=1;break;}}
-    } else { e=1; } print(e);}')
-    if [ $valid == 0 ]; then
-    	Address=$ip_addr
-    	break
-    else
-      echo -e "${RED}Fail: IP Invalid"
-      echo -e "${NORMAL}"
-    fi
-  done
+  function validAddress {
+    for (( i=0; i<3; i++ ))
+    do
+      read -p "Enter IP address: " ip_addr
+      read valid <<< $( awk -v ip="$ip_addr" '
+      BEGIN { n=split(ip, i,"."); e = 0;
+      if (6 < length(ip) && length(ip) < 16 && n == 4 && i[4] > 0 && i[1] > 0){
+      for(z in i){if (i[z] !~ /[0-9]{1,3}/ || i[z] > 255){e=1;break;}}
+      } else { e=1; } print(e);}')
+      if [ $valid == 0 ]; then
+        Address=$ip_addr
+        break
+      else
+        echo -e "${RED}Fail: IP Invalid"
+        echo -e "${NORMAL}"
+      fi
+    done
+  }
+  echo "IP address or Domain?
+[1] IP Address
+[2] Domain
+Default IP address"
+  read -p "Choose an option: " x
+  case $x in
+  [1]* ) validAddress;;
+  [2]* ) read -p "Enter domain: " Address ;;
+  *) validAddress;;
+  esac
   read -e -p "Enter Username: " Username
   while true; do
   		read -p "Using default identity file? [Y/n] " yn
@@ -71,7 +82,6 @@ function addConf {
   		* ) exit 1;;
   	esac
   done
-
 }
 function writeConf {
   cat /dev/null > $confFile
