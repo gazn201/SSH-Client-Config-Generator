@@ -167,8 +167,9 @@ then
 			--help|-h) cat $man; exit 0;;
 			--search|-s) searchConf $2 2> /dev/null; exit 0;;
 			--add|-a) addConf; exit 0;;
-#			--add-ciphers|-C) setting; addconf; ciphers; check;;
+#     --additional-parameters) addConf;;
 #			--create-keys|-c) create-keys;;
+
 			--delete|-d) delConf $2; writeConf; exit 0;;
 	    --write|-w) writeConf; exit 0;;
 			*) echo "illegal option $1"; cat $man; exit 2;;
