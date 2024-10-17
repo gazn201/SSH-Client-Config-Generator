@@ -1,0 +1,73 @@
+#!/bin/python3
+
+import sqlite3
+import sys
+import ipaddress
+import readline
+import os
+from lib.core import *
+from lib.db import *
+
+def main():
+    if len(sys.argv) > 1:
+        command = sys.argv[1]
+        arg = sys.argv[2] if len(sys.argv) > 2 else None
+        match command:
+            # case '--help' | '-h':
+            #     show_help()
+            #     sys.exit(0)
+
+            # case '--search' | '-s':
+            #     if arg:
+            #         search_config(arg)
+            #     else:
+            #         show_help()
+            #     sys.exit(0)
+
+            case '--add' | '-a':
+                createBaseConfig()
+                generateSSHConfig()
+                sys.exit(0)
+
+            case '--addkey' | '-k':
+                addNewKey()
+                sys.exit(0)
+
+            # case '--delete' | '-d':
+            #     if arg:
+            #         deleteConfig(arg)
+            #         writeConfig()
+            #     else:
+            #         sys.exit(f"Error: Argument doesn't exist.")
+
+            case '--write' | '-w':
+                generateSSHConfig()
+                sys.exit(0)
+
+            # case '--export' | '-e'
+            #     if arg:
+            #         exportConfigFromYAML()
+            #         sys.exit(0)
+            #     else:
+            #         sys.exit(f"Error: YAML file doesn't exist.")
+
+            # case '--import' | '-i'
+            #     configImport()
+            #     sys.exit(0)
+
+            # case _:
+            #     show_help()
+            #     sys.exit(f"Error: invalid option.")
+    else:
+        createBaseConfig()
+
+if __name__ == '__main__':
+    main()
+
+
+
+
+
+
+
+

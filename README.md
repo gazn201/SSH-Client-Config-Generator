@@ -1,1 +1,1 @@
-# SSH-Client-Config-Generator
+SSH-MANAGER

@@ -3,9 +3,9 @@ import sys
 import ipaddress
 import readline
 import os
+from lib.db import *
 
-conn = sqlite3.connect('ssh-conf.db')
-cursor = conn.cursor()
+
 def complete_path(text, state):
     line = readline.get_line_buffer()
     path = os.path.expanduser(text)
@@ -22,11 +22,15 @@ def complete_path(text, state):
             files = []
         matches = [os.path.join(dirname, f) for f in files if f.startswith(basename)]
     return matches[state] if state < len(matches) else None
+
+
 def input_with_completion(prompt):
     readline.set_completer(complete_path)
     readline.set_completer_delims('')
     readline.parse_and_bind("bind ^I rl_complete")
     return input(prompt)
+
+
 #Hostaname
 def get_hostname():
     hostname = input(f"Enter hostname: ")
@@ -37,6 +41,8 @@ def get_hostname():
         sys.exit(f"Hostname {result} already exist!")
     else:
         return hostname
+
+
 #IP Address
 def valid_address():
     address = input(f"Enter IP address: ")
@@ -46,6 +52,8 @@ def valid_address():
     except ValueError:
         print(f"IP address not valid!")
         sys.exit(2)
+
+
 def get_address():
     while True:
         print(f"IP address or Domain? (Default IP address)\n[1] IP Address\n[2] Domain")
@@ -60,10 +68,14 @@ def get_address():
         else:
             print(f"Incorrect input, try again.")
 
+
+
 #USERNAME
 def get_username():
     username = input(f"Enter username: ")
     return username
+
+
 #PORT
 def get_port():
     while True:
@@ -76,12 +88,15 @@ def get_port():
             return port
         else:
             print(f"Incorrect input, try again.")
+
+
 #KEY
 def list_keys():
     cursor.execute("SELECT KEYID, KEYNAME FROM KEYS")
     rows = cursor.fetchall()
     for row in rows:
         print(f"[{row[0]}] {row[1]}")
+
 def get_keypath_by_id(record_id):
     cursor.execute("SELECT KEYPATH FROM KEYS WHERE KEYID = ?", (record_id,))
     result = cursor.fetchone()
@@ -90,6 +105,8 @@ def get_keypath_by_id(record_id):
     else:
         print(f"{record_id} not found.")
         return None
+
+
 def key_definition():
     while True:
         key_choice = input(f"Key ID (l for list, a for add new key): ")
@@ -107,6 +124,8 @@ def key_definition():
             break
         else:
             print(f"Incorrect input, try again.")
+
+
 def get_additional():
     while True:
         i = input(f"Do you want to add additional parameters? [y/N]: ")
@@ -154,6 +173,8 @@ def createBaseConfig(*args, **kwargs):
         sys.exit(0)
     else:
         print(f"Incorrect input, try again.")
+
+
 def generateSSHConfig():
     cursor.execute("SELECT ID, HOSTNAME, ADDRESS, USERNAME, KEY, PORT FROM Hosts")
     rows = cursor.fetchall()
@@ -168,6 +189,8 @@ def generateSSHConfig():
             file.write(f"\tPort {port}\n")
             file.write(f"\tIdentityFile {keypath[0]}")
             file.write(f"\n")
+
+
 def addNewKey():
     keypath = input_with_completion(f"Enter path: ")
     keyname = input(f"Enter visible name for key: ")
@@ -177,66 +200,3 @@ def addNewKey():
     cursor.execute("INSERT INTO KEYS (KEYID, KEYNAME, KEYPATH) VALUES (?, ?, ?)", (new_id, keyname, keypath))
     conn.commit()
     print(f"Key have been added: [{new_id}] {keyname}")
-def main():
-    if len(sys.argv) > 1:
-        command = sys.argv[1]
-        arg = sys.argv[2] if len(sys.argv) > 2 else None
-        match command:
-            # case '--help' | '-h':
-            #     show_help()
-            #     sys.exit(0)
-
-            # case '--search' | '-s':
-            #     if arg:
-            #         search_config(arg)
-            #     else:
-            #         show_help()
-            #     sys.exit(0)
-
-            case '--add' | '-a':
-                createBaseConfig()
-                generateSSHConfig()
-                sys.exit(0)
-
-            case '--addkey' | '-k':
-                addNewKey()
-                sys.exit(0)
-
-            # case '--delete' | '-d':
-            #     if arg:
-            #         deleteConfig(arg)
-            #         writeConfig()
-            #     else:
-            #         sys.exit(f"Error: Argument doesn't exist.")
-
-            case '--write' | '-w':
-                generateSSHConfig()
-                sys.exit(0)
-
-            # case '--export' | '-e'
-            #     if arg:
-            #         exportConfigFromYAML()
-            #         sys.exit(0)
-            #     else:
-            #         sys.exit(f"Error: YAML file doesn't exist.")
-
-            # case '--import' | '-i'
-            #     configImport()
-            #     sys.exit(0)
-
-            # case _:
-            #     show_help()
-            #     sys.exit(f"Error: invalid option.")
-    else:
-        createBaseConfig()
-
-if __name__ == '__main__':
-    main()
-
-
-
-
-
-
-
-
