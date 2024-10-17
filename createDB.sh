@@ -1,5 +1,5 @@
 #!/bin/bash
-DB=ssh-conf-test.db
+DB=ssh-conf.db
 touch $DB
 sqlite3 $DB "CREATE TABLE Hosts(
 ID INT PRIMARY KEY NOT NULL,

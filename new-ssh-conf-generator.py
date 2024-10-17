@@ -168,9 +168,6 @@ def generateSSHConfig():
             file.write(f"\tPort {port}\n")
             file.write(f"\tIdentityFile {keypath[0]}")
             file.write(f"\n")
-
-
-
 def addNewKey():
     keypath = input_with_completion(f"Enter path: ")
     keyname = input(f"Enter visible name for key: ")
