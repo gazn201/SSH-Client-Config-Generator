@@ -121,7 +121,6 @@ def key_definition():
             list_keys()
         elif key_choice == 'a':
             addNewKey()
-            break
         else:
             print(f"Incorrect input, try again.")
 

@@ -55,11 +55,12 @@ def main():
             #     configImport()
             #     sys.exit(0)
 
-            # case _:
-            #     show_help()
-            #     sys.exit(f"Error: invalid option.")
+            case _:
+                #show_help()
+                sys.exit(f"Error: invalid option.")
     else:
         createBaseConfig()
+        generateSSHConfig()
 
 if __name__ == '__main__':
     main()
