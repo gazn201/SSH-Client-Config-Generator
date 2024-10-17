@@ -154,8 +154,23 @@ def createBaseConfig(*args, **kwargs):
         sys.exit(0)
     else:
         print(f"Incorrect input, try again.")
-def insertToDB():
-    print(1)
+def generateSSHConfig():
+    cursor.execute("SELECT ID, HOSTNAME, ADDRESS, USERNAME, KEY, PORT FROM Hosts")
+    rows = cursor.fetchall()
+    with open('config', 'w') as file:
+        for row in rows:
+            id, hostname, address, user, key, port = row
+            cursor.execute("SELECT KEYPATH FROM KEYS WHERE KEYID = ?", (key,))
+            keypath = cursor.fetchone()
+            file.write(f"Host {hostname}\n")
+            file.write(f"\tHostName {address}\n")
+            file.write(f"\tUser {user}\n")
+            file.write(f"\tPort {port}\n")
+            file.write(f"\tIdentityFile {keypath[0]}")
+            file.write(f"\n")
+
+
+
 def addNewKey():
     keypath = input_with_completion(f"Enter path: ")
     keyname = input(f"Enter visible name for key: ")
@@ -196,9 +211,9 @@ def main():
             #     else:
             #         sys.exit(f"Error: Argument doesn't exist.")
 
-            # case '--write' | '-w'
-            #     writeConfig()
-            #     sys.exit(0)
+            case '--write' | '-w':
+                generateSSHConfig()
+                sys.exit(0)
 
             # case '--export' | '-e'
             #     if arg:
