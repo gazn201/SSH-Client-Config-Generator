@@ -195,6 +195,7 @@ def main():
 
             case '--add' | '-a':
                 createBaseConfig()
+                generateSSHConfig()
                 sys.exit(0)
 
             case '--addkey' | '-k':
