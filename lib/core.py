@@ -202,7 +202,7 @@ def addNewKey():
     print(f"Key have been added: [{new_id}] {keyname}")
 
 def searchHosts(arg):
-    searchObject = f"%{arg}"
+    searchObject = f"%{arg}%"
     cursor.execute("SELECT ID, HOSTNAME, ADDRESS FROM Hosts WHERE HOSTNAME LIKE ?", (searchObject,))
     rows = cursor.fetchall()
     if rows:
