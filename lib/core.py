@@ -6,6 +6,7 @@ import os
 from lib.db import *
 
 
+
 def complete_path(text, state):
     line = readline.get_line_buffer()
     path = os.path.expanduser(text)
@@ -199,3 +200,16 @@ def addNewKey():
     cursor.execute("INSERT INTO KEYS (KEYID, KEYNAME, KEYPATH) VALUES (?, ?, ?)", (new_id, keyname, keypath))
     conn.commit()
     print(f"Key have been added: [{new_id}] {keyname}")
+
+def searchHosts(arg):
+    searchObject = f"%{arg}"
+    cursor.execute("SELECT ID, HOSTNAME, ADDRESS FROM Hosts WHERE HOSTNAME LIKE ?", (searchObject,))
+    rows = cursor.fetchall()
+    if rows:
+        for row in rows:
+            id, hostname, address = row
+            print(f"ID {id} ;; Hostname {hostname} ;; Address {address}")
+    else:
+        print(f"No matches found")
+
+

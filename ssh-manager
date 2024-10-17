@@ -17,12 +17,12 @@ def main():
             #     show_help()
             #     sys.exit(0)
 
-            # case '--search' | '-s':
-            #     if arg:
-            #         search_config(arg)
-            #     else:
-            #         show_help()
-            #     sys.exit(0)
+            case '--search' | '-s':
+                if arg:
+                    searchHosts(arg)
+                else:
+                    sys.exit(f"Incorrect input, try again.")
+                sys.exit(0)
 
             case '--add' | '-a':
                 createBaseConfig()
