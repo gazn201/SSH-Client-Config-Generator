@@ -12,48 +12,62 @@ from lib.db import *
 def main():
     parser = argparse.ArgumentParser(
             prog='ssh-manager',
+            add_help=False,
             description='Easily manage your .ssh/config and private keys.',
             epilog='made with blood and tears'
             )
+    
+    sub = parser.add_subparsers(dest='command', help='Available commands')
 
-    parser.add_argument('--search','-s',type=str, nargs=1)
-    parser.add_argument('--add','-a', action='store_true')
-    parser.add_argument('--addkey','-k', action='store_true')
-    parser.add_argument('--delete','-d')
-    parser.add_argument('--write','-w', action='store_true')
-    parser.add_argument('--export','-e')
-    parser.add_argument('--imp','-i')
+    search_arg = sub.add_parser('search')
+    search_arg.add_argument('hostname', type=str,help='Hostname of host')
+    
+    sub.add_parser('add')
+    sub.add_parser('addkey')
+
+    delete_arg = sub.add_parser('delete')
+    delete_arg.add_argument('host_key', type=str, help='Key of host')
+    
+    sub.add_parser('write')
+
+    edit_arg = sub.add_parser('edit')
+    edit_arg.add_argument('edit_key', type=str, help='Key of host')
+
+#    sub.add_parser('export')
+#    sub.add_parser('imp')
 
     args = parser.parse_args()
 
-    if  args.add:
+    if  args.command == "add":
         print(1)
         createBaseConfig()
         generateSSHConfig()
         sys.exit(0)
-    elif args.search:
+    elif args.command == "search":
         print(2)
-        search_config(args.search)
-    elif args.addkey:
+        searchHosts(args.hostname)
+    elif args.command == "addkey":
         print(3)
         addNewKey()
-    elif args.delete:
+    elif args.command == "delete":
         print(4)
-        deleteConfig(args.delete)
-        writeConfig()
-    elif args.write:
+        deleteHosts(args.host_key)
+        generateSSHConfig()
+    elif args.command == 'write':
         print(5)
-        writeConfig()
-    elif args.export:
-        print(6)
-        exportConfigFromYAML()
-    elif args.imp:
-        print(7)
-        configImport()
+        generateSSHConfig()
+    elif args.command == 'edit':
+        editHosts(args.edit_key)
+        generateSSHConfig()
+        sys.exit(0)
+#    elif args.export:
+#        print(6)
+#        exportConfigFromYAML()
+#    elif args.imp:
+#        print(7)
+#        configImport()
     else:
         parser.print_help()
-
-
 
 if __name__ == '__main__':
     main()
