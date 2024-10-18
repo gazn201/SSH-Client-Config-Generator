@@ -1,0 +1,60 @@
+#!/bin/python3
+
+import sqlite3
+import sys
+import ipaddress
+import readline
+import argparse
+import os
+from lib.core import *
+from lib.db import *
+
+def main():
+    parser = argparse.ArgumentParser(
+            prog='ssh-manager',
+            description='Easily manage your .ssh/config and private keys.',
+            epilog='made with blood and tears'
+            )
+
+    parser.add_argument('--search','-s',type=str, nargs=1)
+    parser.add_argument('--add','-a', action='store_true')
+    parser.add_argument('--addkey','-k', action='store_true')
+    parser.add_argument('--delete','-d')
+    parser.add_argument('--write','-w', action='store_true')
+    parser.add_argument('--export','-e')
+    parser.add_argument('--imp','-i')
+
+    args = parser.parse_args()
+
+    if  args.add:
+        print(1)
+        createBaseConfig()
+        generateSSHConfig()
+        sys.exit(0)
+    elif args.search:
+        print(2)
+        search_config(args.search)
+    elif args.addkey:
+        print(3)
+        addNewKey()
+    elif args.delete:
+        print(4)
+        deleteConfig(args.delete)
+        writeConfig()
+    elif args.write:
+        print(5)
+        writeConfig()
+    elif args.export:
+        print(6)
+        exportConfigFromYAML()
+    elif args.imp:
+        print(7)
+        configImport()
+    else:
+        parser.print_help()
+
+
+
+if __name__ == '__main__':
+    main()
+
