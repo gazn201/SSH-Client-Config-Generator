@@ -33,16 +33,25 @@ def main():
                 addNewKey()
                 sys.exit(0)
 
-            # case '--delete' | '-d':
-            #     if arg:
-            #         deleteConfig(arg)
-            #         writeConfig()
-            #     else:
-            #         sys.exit(f"Error: Argument doesn't exist.")
+            case '--delete' | '-d':
+                if arg:
+                    deleteHosts(arg)
+                    generateSSHConfig()
+                    sys.exit(0)
+                else:
+                    sys.exit(f"Error: Argument doesn't exist.")
 
             case '--write' | '-w':
                 generateSSHConfig()
                 sys.exit(0)
+
+            case '--edit' | '-e':
+                if arg:
+                    editHosts(arg)
+                    generateSSHConfig()
+                    sys.exit(0)
+                else:
+                    sys.exit(f"Error: Argument doesn't exist.")
 
             # case '--export' | '-e'
             #     if arg:

@@ -39,7 +39,7 @@ def get_hostname():
     cursor.execute(query_hostname, (hostname,))
     result = cursor.fetchone()
     if result:
-        sys.exit(f"Hostname {result} already exist!")
+        sys.exit(f"Hostname {result[0]} already exist!")
     else:
         return hostname
 
@@ -80,7 +80,7 @@ def get_username():
 #PORT
 def get_port():
     while True:
-        choice = input(f"Using default port? [Y/n]")
+        choice = input(f"Using default port? [Y/n]: ")
         if choice.lower() == 'y' or choice == '':
             port = '22'
             return port
@@ -201,6 +201,7 @@ def addNewKey():
     conn.commit()
     print(f"Key have been added: [{new_id}] {keyname}")
 
+
 def searchHosts(arg):
     searchObject = f"%{arg}%"
     cursor.execute("SELECT ID, HOSTNAME, ADDRESS FROM Hosts WHERE HOSTNAME LIKE ?", (searchObject,))
@@ -212,4 +213,116 @@ def searchHosts(arg):
     else:
         print(f"No matches found")
 
+
+def parse_values(value_str):
+    values = []
+    HostIDs = value_str.split(',')
+    for part in HostIDs:
+        part = part.strip()
+        if '-' in part:
+            start, end = part.split('-')
+            start, end = int(start), int(end)
+            values.extend(range(start, end + 1))
+        else:
+            values.append(int(part))
+    return values
+def deleteHosts(arg):
+    value_str = arg
+    hostIDs = parse_values(value_str)
+    success_count = 0
+    unsuccess_count = 0
+    id_found = []
+    id_not_found = []
+    for host in hostIDs:
+        cursor.execute("SELECT ID FROM Hosts WHERE ID = ?", (host,))
+        id = cursor.fetchone()
+        if id:
+            id_found.append(host)
+            success_count += 1
+        else:
+            id_not_found.append(host)
+            unsuccess_count += 1
+    for host in id_not_found:
+        print(f"{host} can't be removed. Not found!")
+    print(f"\n")
+    for host in id_found:
+        cursor.execute("SELECT HOSTNAME FROM Hosts WHERE ID = ?", (host,))
+        hostname = cursor.fetchone()
+        print(f"ID: {host} ;; Hostname {hostname[0]} can be deleted!")
+    print(f"\n")
+    while True:
+        i = input(f"Remove {success_count} hosts? [yes/no]: ")
+        if i.lower() == 'yes':
+            for host in id_found:
+                cursor.execute("DELETE FROM Hosts where ID = ?", (host,))
+                cursor.execute("SELECT ID FROM ADDITIONALPARAMS WHERE ID = ?", (host,))
+                additional_id = cursor.fetchone()
+                if additional_id:
+                    cursor.execute("DELETE FROM ADDITIONALPARAMS WHERE ID = ?", (host,))
+                else:
+                    pass
+            break
+        elif i.lower() == 'no':
+            sys.exit(f"Operation was canceled.")
+        else:
+            print(f"Incorrect input, try again.")
+    conn.commit()
+    print(f"{success_count} was successfully removed / {unsuccess_count} was not removed.")
+
+def is_integer(int_value):
+    try:
+        int(int_value)
+        return True
+    except ValueError:
+        return False
+
+
+def editHosts(arg, *args, **kwargs):
+    int_value = arg
+    id = arg
+    if is_integer(int_value):
+        cursor.execute("SELECT ID, HOSTNAME, ADDRESS, USERNAME, KEY, PORT FROM Hosts WHERE ID = ?", (id,))
+        config = cursor.fetchone()
+        if config:
+            id, hostname, address, username, keyid, port = config
+            cursor.execute("SELECT KEYNAME FROM KEYS WHERE KEYID = ?", (keyid,))
+            key = cursor.fetchone()
+            print(f"\nID: {id}\nHostname: {hostname}\nAddress: {address}\nUsername: {username}\nKey: {key[0]}\nPort: {port}\n")
+            print(f"What do you want to edit?")
+            while True:
+                choice = input(f"You can select next options: hostname (h), address (a), username (u), key (k), port (p), all (all) or cancel (c)\nPlease enter your option: ")
+                if choice.lower() == 'hostname' or choice.lower() == 'h':
+                    hostname = get_hostname()
+                    cursor.execute("UPDATE Hosts SET HOSTNAME = ? WHERE ID = ?", (hostname, id))
+                    break
+                elif choice.lower() == 'address' or choice.lower() == 'a':
+                    address = get_address()
+                    cursor.execute("UPDATE Hosts SET ADDRESS = ? WHERE ID = ?", (address, id,))
+                    break
+                elif choice.lower() == 'username' or choice.lower() == 'u':
+                    username = get_username()
+                    cursor.execute("UPDATE Hosts SET USERNAME = ? WHERE ID = ?", (username, id,))
+                    break
+                elif choice.lower() == 'key' or choice.lower() == 'k':
+                    key = key_definition()
+                    cursor.execute("UPDATE Hosts SET KEY = ? WHERE ID = ?", (key, id,))
+                    break
+                elif choice.lower() == 'port' or choice.lower() == 'p':
+                    port = get_port()
+                    cursor.execute("UPDATE Hosts SET PORT = ? WHERE ID = ?", (port, id,))
+                    break
+                elif choice.lower() == 'all':
+                    deleteHosts(arg)
+                    createBaseConfig()
+                    break
+                elif choice.lower() == 'cancel' or choice.lower() == 'c':
+                    print(f"Operation was canceled.")
+                    sys.exit(0)
+                else:
+                    print(f"Incorrect input, try again.")
+        else:
+            sys.exit(f"Config not found!")
+        conn.commit()
+    else:
+        sys.exit(f"Config with ID {id} does not exist!")
 
