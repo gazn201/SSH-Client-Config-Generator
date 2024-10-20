@@ -46,16 +46,20 @@ def main():
     elif args.command == "search":
         print(2)
         searchHosts(args.hostname)
+        sys.exit(0)
     elif args.command == "addkey":
         print(3)
         addNewKey()
+        sys.exit(0)
     elif args.command == "delete":
         print(4)
         deleteHosts(args.host_key)
         generateSSHConfig()
+        sys.exit(0)
     elif args.command == 'write':
         print(5)
         generateSSHConfig()
+        sys.exit(0)
     elif args.command == 'edit':
         editHosts(args.edit_key)
         generateSSHConfig()
@@ -68,6 +72,7 @@ def main():
 #        configImport()
     else:
         parser.print_help()
+        sys.exit(0)
 
 if __name__ == '__main__':
     main()

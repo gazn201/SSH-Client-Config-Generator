@@ -204,7 +204,7 @@ def addNewKey():
 
 def searchHosts(arg):
     searchObject = f"%{arg}%"
-    cursor.execute("SELECT ID, HOSTNAME, ADDRESS FROM Hosts WHERE HOSTNAME LIKE ?", (searchObject,))
+    cursor.execute("SELECT ID, HOSTNAME, ADDRESS FROM Hosts WHERE HOSTNAME OR ADDRESS LIKE ?", (searchObject,))
     rows = cursor.fetchall()
     if rows:
         for row in rows:
