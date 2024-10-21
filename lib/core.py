@@ -30,29 +30,38 @@ def input_with_completion(prompt):
     readline.parse_and_bind("bind ^I rl_complete")
     return input(prompt)
 
+def check_input(prompt):
+    user_input = input(prompt).strip()
+    if user_input:
+        return user_input
+    else:
+        print(f"String is empty!")
+        return None
 
 #Hostaname
 def get_hostname():
-    hostname = input(f"Enter hostname: ")
-    query_hostname = "SELECT HOSTNAME FROM Hosts WHERE HOSTNAME = ?"
-    cursor.execute(query_hostname, (hostname,))
-    result = cursor.fetchone()
-    if result:
-        sys.exit(f"Hostname {result[0]} already exist!")
-    else:
-        return hostname
-
+    while True:
+        hostname = check_input(f"Enter hostname: ")
+        if hostname:
+            query_hostname = "SELECT HOSTNAME FROM Hosts WHERE HOSTNAME = ?"
+            cursor.execute(query_hostname, (hostname,))
+            result = cursor.fetchone()
+            if result:
+                print(f"Hostname {result[0]} already exist!")
+            else:
+                return hostname
+        else:
+            pass
 
 #IP Address
 def valid_address():
-    address = input(f"Enter IP address: ")
-    try:
-        ip = ipaddress.ip_address(address)
-        return address
-    except ValueError:
-        print(f"IP address not valid!")
-        sys.exit(2)
-
+    while True:
+        address = input(f"Enter IP address: ")
+        try:
+            ip = ipaddress.ip_address(address)
+            return address
+        except ValueError:
+            print(f"IP address not valid!")
 
 def get_address():
     while True:
@@ -62,9 +71,12 @@ def get_address():
             address = valid_address()
             return address
         elif x == '2':
-            domain = input(f"Enter domain: ")
-            address = domain
-            return address
+            domain = check_input(f"Enter domain: ")
+            if domain:
+                address = domain
+                return address
+            else:
+                pass
         else:
             print(f"Incorrect input, try again.")
 
@@ -72,9 +84,12 @@ def get_address():
 
 #USERNAME
 def get_username():
-    username = input(f"Enter username: ")
-    return username
-
+    while True:
+        username = check_input(f"Enter username: ")
+        if username:
+            return username
+        else:
+            pass
 
 #PORT
 def get_port():
@@ -84,11 +99,14 @@ def get_port():
             port = '22'
             return port
         elif choice.lower() == 'n':
-            port = input(f"Enter port: ")
-            return port
+            while True:
+                port = check_input(f"Enter port: ")
+                if port:
+                    return port
+                else:
+                    pass
         else:
             print(f"Incorrect input, try again.")
-
 
 #KEY
 def list_keys():
@@ -105,7 +123,6 @@ def get_keypath_by_id(record_id):
     else:
         print(f"{record_id} not found.")
         return None
-
 
 def key_definition():
     while True:
@@ -124,13 +141,17 @@ def key_definition():
         else:
             print(f"Incorrect input, try again.")
 
-
-def get_additional():
+def define_additional():
     while True:
         i = input(f"Do you want to add additional parameters? [y/N]: ")
         if i.lower() == 'y':
             additional = True
-            parametr = input(f"Enter additional parametr: ")
+            while True:
+                parametr = check_input(f"Enter additional parametr: ")
+                if parametr:
+                    break
+                else:
+                    pass
             value = input(f"Enter value: ")
             return additional, parametr, value
         elif i.lower() == 'n' or i == '':
@@ -139,13 +160,30 @@ def get_additional():
         else:
             print(f"Incorrect input, try again.")
 
+def edit_additional(id):
+    while True:
+        parametr = check_input(f"Enter additional parametr: ")
+        if parametr:
+            break
+        else:
+            pass
+    value = input(f"Enter value: ")
+    cursor.execute("SELECT PARAMETR FROM ADDITIONALPARAMS WHERE ID = ?", (id,))
+    additional_parametr = cursor.fetchone()
+    if additional_parametr:
+        additional = [parametr, value]
+        update_field_additional(id, additional)
+    else:
+        additional = [True, parametr, value]
+        insert_additioanl(id, additional)
+
 def createBaseConfig(*args, **kwargs):
     hostname = get_hostname()
     address = get_address()
     username = get_username()
     port = get_port()
     key = key_definition()
-    additional = get_additional()
+    additional = define_additional()
     print(f"\n")
     print(f"Hostname = {hostname}")
     print(f"Address = {address}")
@@ -164,7 +202,7 @@ def createBaseConfig(*args, **kwargs):
         new_id = (last_id + 1) if last_id else 1
         cursor.execute("INSERT INTO Hosts (ID, HOSTNAME, ADDRESS, USERNAME, KEY, PORT) VALUES (?, ?, ?, ?, ?, ?)", (new_id, hostname, address, username, key, port))
         if additional[0]:
-            cursor.execute("INSERT INTO ADDITIONALPARAMS (ID, PARAMETR, VALUE) VALUES (?, ?, ?)", (new_id, additional[1], additional[2]))
+            insert_additioanl(new_id, additional)
         else:
             pass
         conn.commit()
@@ -286,20 +324,28 @@ def editHosts(arg, *args, **kwargs):
             id, hostname, address, username, keyid, port = config
             cursor.execute("SELECT KEYNAME FROM KEYS WHERE KEYID = ?", (keyid,))
             key = cursor.fetchone()
-            print(f"\nID: {id}\nHostname: {hostname}\nAddress: {address}\nUsername: {username}\nKey: {key[0]}\nPort: {port}\n")
+            cursor.execute("SELECT PARAMETR, VALUE FROM ADDITIONALPARAMS WHERE ID = ?", (id,))
+            additional = cursor.fetchone()
+            print(f"\nID: {id}\nHostname: {hostname}\nAddress: {address}\nUsername: {username}\nKey: {key[0]}\nPort: {port}")
+            if additional:
+                print(f"Parametr = {additional[0]}")
+                if additional[1]:
+                    print(f"Value = {additional[1]}\n")
             print(f"What do you want to edit?")
             options = {
-                'h': lambda: updaete_field('HOSTNAME', get_hostname(), id),
-                'a': lambda: updaete_field('ADDRESS', get_address(), id),
-                'u': lambda: updaete_field('USERNAME', get_username(), id),
-                'k': lambda: updaete_field('KEY', key_definition(), id),
-                'p': lambda: updaete_field('PORT', get_port(), id),
+                'h': lambda: update_field_hosts('HOSTNAME', get_hostname(), id),
+                'a': lambda: update_field_hosts('ADDRESS', get_address(), id),
+                'u': lambda: update_field_hosts('USERNAME', get_username(), id),
+                'k': lambda: update_field_hosts('KEY', key_definition(), id),
+                'p': lambda: update_field_hosts('PORT', get_port(), id),
+                'ad': lambda: edit_additional(id),
                 'all': lambda: (deleteHosts(arg), createBaseConfig()),
                 'c': lambda: sys.exit(f"Operation was canceled.")
             }
             while True:
                 print(f"You can select next options:")
-                print(f"hostname (h), address (a), username (u), key (k), port (p), all (all) or cancel (c)")
+                print(f"hostname (h), address (a), username (u), key (k), port (p), additional (ad)")
+                print(f"all (all) or cancel (c)")
                 choice = input(f"Please enter your option: ")
                 if choice in options:
                     options[choice]()
