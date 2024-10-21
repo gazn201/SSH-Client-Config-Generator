@@ -12,7 +12,7 @@ if os.path.exists(f"{SSH_OLD}"):
     PROMPT = input(f"found config in {SSH_OLD}, is it actual config?[y/n]: ")
     if PROMPT in ['y', 'Y','yes','Yes']:
         print("Working with this...")
-    elif PROMT in ['n','N','no','No']:
+    elif PROMPT in ['n','N','no','No']:
         SSH_OLD = input("Absolute path to yours ssh config directory[If not exist will be created]: ")
 
 SCRIPT_HOME = f"{USER_HOME}/.ssh-manager"
@@ -59,6 +59,7 @@ else:
     #Create script home
     print(f"Creating script directory in {SCRIPT_HOME}")
     Path(SCRIPT_HOME).mkdir(parents=True, exist_ok=True)
+    os.system(f"git clone --branch dev https://github.com/gazn201/SSH-Manager.git {SCRIPT_HOME}")
     #Create .env
     with open(f"{SCRIPT_HOME}/.env", "w") as env:
         env.write(f"SCRIPT_HOME='{SCRIPT_HOME}' \nSSH_CONFIG='{USER_HOME}/.ssh/config' \n")
