@@ -1,4 +1,3 @@
-import sqlite3
 import sys
 import ipaddress
 import readline
@@ -289,40 +288,28 @@ def editHosts(arg, *args, **kwargs):
             key = cursor.fetchone()
             print(f"\nID: {id}\nHostname: {hostname}\nAddress: {address}\nUsername: {username}\nKey: {key[0]}\nPort: {port}\n")
             print(f"What do you want to edit?")
+            options = {
+                'h': lambda: updaete_field('HOSTNAME', get_hostname(), id),
+                'a': lambda: updaete_field('ADDRESS', get_address(), id),
+                'u': lambda: updaete_field('USERNAME', get_username(), id),
+                'k': lambda: updaete_field('KEY', key_definition(), id),
+                'p': lambda: updaete_field('PORT', get_port(), id),
+                'all': lambda: (deleteHosts(arg), createBaseConfig()),
+                'c': lambda: sys.exit(f"Operation was canceled.")
+            }
             while True:
-                choice = input(f"You can select next options: hostname (h), address (a), username (u), key (k), port (p), all (all) or cancel (c)\nPlease enter your option: ")
-                if choice.lower() == 'hostname' or choice.lower() == 'h':
-                    hostname = get_hostname()
-                    cursor.execute("UPDATE Hosts SET HOSTNAME = ? WHERE ID = ?", (hostname, id))
+                print(f"You can select next options:")
+                print(f"hostname (h), address (a), username (u), key (k), port (p), all (all) or cancel (c)")
+                choice = input(f"Please enter your option: ")
+                if choice in options:
+                    options[choice]()
                     break
-                elif choice.lower() == 'address' or choice.lower() == 'a':
-                    address = get_address()
-                    cursor.execute("UPDATE Hosts SET ADDRESS = ? WHERE ID = ?", (address, id,))
-                    break
-                elif choice.lower() == 'username' or choice.lower() == 'u':
-                    username = get_username()
-                    cursor.execute("UPDATE Hosts SET USERNAME = ? WHERE ID = ?", (username, id,))
-                    break
-                elif choice.lower() == 'key' or choice.lower() == 'k':
-                    key = key_definition()
-                    cursor.execute("UPDATE Hosts SET KEY = ? WHERE ID = ?", (key, id,))
-                    break
-                elif choice.lower() == 'port' or choice.lower() == 'p':
-                    port = get_port()
-                    cursor.execute("UPDATE Hosts SET PORT = ? WHERE ID = ?", (port, id,))
-                    break
-                elif choice.lower() == 'all':
-                    deleteHosts(arg)
-                    createBaseConfig()
-                    break
-                elif choice.lower() == 'cancel' or choice.lower() == 'c':
-                    print(f"Operation was canceled.")
-                    sys.exit(0)
                 else:
                     print(f"Incorrect input, try again.")
+            conn.commit()
         else:
             sys.exit(f"Config not found!")
-        conn.commit()
     else:
         sys.exit(f"Config with ID {id} does not exist!")
+
 

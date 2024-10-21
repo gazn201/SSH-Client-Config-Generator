@@ -1,12 +1,6 @@
 #!/bin/python3
 
-import sqlite3
-import sys
-import ipaddress
-import readline
-import os
 from lib.core import *
-from lib.db import *
 
 def main():
     if len(sys.argv) > 1:
