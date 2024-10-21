@@ -1,0 +1,79 @@
+#!/bin/python3
+
+import sqlite3
+import sys
+import ipaddress
+import readline
+import argparse
+import os
+from lib.core import *
+from lib.db import *
+
+def main():
+    parser = argparse.ArgumentParser(
+            prog='ssh-manager',
+            add_help=False,
+            description='Easily manage your .ssh/config and private keys.',
+            epilog='made with blood and tears'
+            )
+    
+    sub = parser.add_subparsers(dest='command', help='Available commands')
+
+    search_arg = sub.add_parser('search')
+    search_arg.add_argument('hostname', type=str,help='Hostname of host')
+    
+    sub.add_parser('add')
+    sub.add_parser('addkey')
+
+    delete_arg = sub.add_parser('delete')
+    delete_arg.add_argument('host_key', type=str, help='Key of host')
+    
+    sub.add_parser('write')
+
+    edit_arg = sub.add_parser('edit')
+    edit_arg.add_argument('edit_key', type=str, help='Key of host')
+
+#    sub.add_parser('export')
+#    sub.add_parser('imp')
+
+    args = parser.parse_args()
+
+    if  args.command == "add":
+        print(1)
+        createBaseConfig()
+        generateSSHConfig()
+        sys.exit(0)
+    elif args.command == "search":
+        print(2)
+        searchHosts(args.hostname)
+        sys.exit(0)
+    elif args.command == "addkey":
+        print(3)
+        addNewKey()
+        sys.exit(0)
+    elif args.command == "delete":
+        print(4)
+        deleteHosts(args.host_key)
+        generateSSHConfig()
+        sys.exit(0)
+    elif args.command == 'write':
+        print(5)
+        generateSSHConfig()
+        sys.exit(0)
+    elif args.command == 'edit':
+        editHosts(args.edit_key)
+        generateSSHConfig()
+        sys.exit(0)
+#    elif args.export:
+#        print(6)
+#        exportConfigFromYAML()
+#    elif args.imp:
+#        print(7)
+#        configImport()
+    else:
+        parser.print_help()
+        sys.exit(0)
+
+if __name__ == '__main__':
+    main()
+
