@@ -7,13 +7,13 @@ from pathlib import Path
 
 USER_HOME = Path.home()
 
-SSH_OLD = f"{USER_HOME}/.ssh"
+SSH_OLD = f"{USER_HOME}/.ssh/config"
 if os.path.exists(f"{SSH_OLD}/config"):
     PROMPT = input(f"found config in {SSH_OLD}, is it actual config?[y/n]: ")
     if PROMPT in ['y', 'Y','yes','Yes']:
         print("Working with this...")
     elif PROMT in ['n','N','no','No']:
-        SSH_OLD = input("Absolute path to yours ssh config directory[If not exist will be created]: ")
+        SSH_OLD = input("Absolute path to yours ssh config[If not exist will be created]: ")
 
 SCRIPT_HOME = f"{USER_HOME}/.ssh-manager"
 
@@ -21,9 +21,9 @@ if os.path.exists(f"{SSH_OLD}"):
     while True:
         BACK_BOOL = input("Backup your existing .ssh directory?[y/n]: ")
         if BACK_BOOL in ['y','Y','Yes','yes']:
-            print(f"Backupin' {SSH_OLD} to {USER_HOME}/.ssh-before-manager")
+            print(f"Backupin' {SSH_OLD} to {USER_HOME}/ssh_config-before-manager")
             Path(f"{USER_HOME}/.ssh_before_manager").mkdir(parent=True, exits_ok=True)
-            os.system("cp {SSH_OLD}/* {USER_HOME}/.ssh_before_manager")
+            os.system("cp {SSH_OLD} {USER_HOME}/ssh_config_before_manager")
         elif BACK_BOOL in ['n','N','no','No']:
             print("Skippin' backup")
             break
@@ -55,8 +55,7 @@ else:
         #Create .env
         with open(f"{SCRIPT_HOME}/.env", "w") as env:
             env.write(f"SCRIPT_HOME='{SCRIPT_HOME}' \n
-                        SSH_CONFIG='{USER_HOME}/.ssh/config' \n
-                        ")
+                        SSH_CONFIG='{USER_HOME}/.ssh/config' \n")
 
 USER_SHELL = environ['SHELL']
 
