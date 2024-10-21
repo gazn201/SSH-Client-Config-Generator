@@ -1,77 +1,74 @@
 #!/bin/python3
 
+import argparse
 from lib.core import *
 
+
 def main():
-    if len(sys.argv) > 1:
-        command = sys.argv[1]
-        arg = sys.argv[2] if len(sys.argv) > 2 else None
-        match command:
-            # case '--help' | '-h':
-            #     show_help()
-            #     sys.exit(0)
+    parser = argparse.ArgumentParser(
+            prog='ssh-manager',
+            add_help=False,
+            description='Easily manage your .ssh/config and private keys.',
+            epilog='made with blood and tears'
+            )
+    
+    sub = parser.add_subparsers(dest='command', help='Available commands')
 
-            case '--search' | '-s':
-                if arg:
-                    searchHosts(arg)
-                else:
-                    sys.exit(f"Incorrect input, try again.")
-                sys.exit(0)
+    search_arg = sub.add_parser('search')
+    search_arg.add_argument('hostname', type=str,help='Hostname of host')
+    
+    sub.add_parser('add')
+    sub.add_parser('addkey')
 
-            case '--add' | '-a':
-                createBaseConfig()
-                generateSSHConfig()
-                sys.exit(0)
+    delete_arg = sub.add_parser('delete')
+    delete_arg.add_argument('host_key', type=str, help='Key of host')
+    
+    sub.add_parser('write')
 
-            case '--addkey' | '-k':
-                addNewKey()
-                sys.exit(0)
+    edit_arg = sub.add_parser('edit')
+    edit_arg.add_argument('edit_key', type=str, help='Key of host')
 
-            case '--delete' | '-d':
-                if arg:
-                    deleteHosts(arg)
-                    generateSSHConfig()
-                    sys.exit(0)
-                else:
-                    sys.exit(f"Error: Argument doesn't exist.")
+#    sub.add_parser('export')
+#    sub.add_parser('imp')
 
-            case '--write' | '-w':
-                generateSSHConfig()
-                sys.exit(0)
+    args = parser.parse_args()
 
-            case '--edit' | '-e':
-                if arg:
-                    editHosts(arg)
-                    generateSSHConfig()
-                    sys.exit(0)
-                else:
-                    sys.exit(f"Error: Argument doesn't exist.")
-
-            # case '--export' | '-e'
-            #     if arg:
-            #         exportConfigFromYAML()
-            #         sys.exit(0)
-            #     else:
-            #         sys.exit(f"Error: YAML file doesn't exist.")
-
-            # case '--import' | '-i'
-            #     configImport()
-            #     sys.exit(0)
-
-            case _:
-                #show_help()
-                sys.exit(f"Error: invalid option.")
-    else:
+    if  args.command == "add":
+        print(1)
         createBaseConfig()
         generateSSHConfig()
+        sys.exit(0)
+    elif args.command == "search":
+        print(2)
+        searchHosts(args.hostname)
+        sys.exit(0)
+    elif args.command == "addkey":
+        print(3)
+        addNewKey()
+        sys.exit(0)
+    elif args.command == "delete":
+        print(4)
+        deleteHosts(args.host_key)
+        generateSSHConfig()
+        sys.exit(0)
+    elif args.command == 'write':
+        print(5)
+        generateSSHConfig()
+        sys.exit(0)
+    elif args.command == 'edit':
+        editHosts(args.edit_key)
+        generateSSHConfig()
+        sys.exit(0)
+#    elif args.export:
+#        print(6)
+#        exportConfigFromYAML()
+#    elif args.imp:
+#        print(7)
+#        configImport()
+    else:
+        parser.print_help()
+        sys.exit(0)
 
 if __name__ == '__main__':
     main()
-
-
-
-
-
-
-
 
